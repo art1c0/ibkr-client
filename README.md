@@ -8,7 +8,7 @@ It supports both REST API (via Fetch) and WebSocket (via RxJS client with expone
 
 It does not work with legacy TWS API, so please don't get confused.
 
-It is highly recommended to read the official documentation and get familiar with IBKR API and connection concepts before using this module and integrating it into your trading system.
+It is highly recommended to read the official documentation and get familiar with IBKR API and connection concepts before using this module and integrating it into a trading system.
 
 ## Install
 `npm i ibkr-client`
@@ -16,18 +16,22 @@ It is highly recommended to read the official documentation and get familiar wit
 It contains both ESM modern version and CommonJS version for NodeJS legacy.
 
 ## Configuration
-There are 2 options how one can connect to IBKR Web API:
+There are 2 options of connecting to IBKR Web API:
 1. Via their intermediate layer called IB Gateway (standard option).
 2. Directly using OAuth protocol (available only to institutional users).
 
 ### IB Gateway
 ```
 import { IbkrClient } from 'ibkr-client';
-const client = new IbkrClient('http://url_to_your_ib_gateway_instance');
+const client = new IbkrClient('http://url_to_ib_gateway_instance');
 ```
 
 ### OAuth
-Right now only OAuth1.0a method is supported. OAuth2.0 should be available later.
+OAuth access allows for direct connection, but it's available only for institutional users.
+
+At the moment only OAuth1.0a method is supported.
+
+OAuth2.0 should be available later. Feel free to [fund this package](https://buymeacoffee.com/artico) to speed the work up.
 
 In order to use OAuth1.0a method one first needs to obtain configuration files and generate `oauth1.json` file using `node configure` script bundled with this module.
 1. Getting configuration files can be done on this [page](https://ndcdyn.interactivebrokers.com/sso/Login?action=OAUTH&RL=1&ip2loc=US).
@@ -40,13 +44,13 @@ In order to use OAuth1.0a method one first needs to obtain configuration files a
    4. String `Consumer Key`
    5. String `Access Token`
    6. String `Access Token Secret`
-5. Having all those 6 key things you can generate `oauth1.json` configuration file.
+5. Having all those 6 key things one can generate `oauth1.json` configuration file.
 6. Go to the module directory: `cd node_modules/ibkr-client`.
 7. Put 3 above-mentioned files into that directory.
 8. Run generation script: `node configure`.
 9. Use 3 above-mentioned strings when requested by the script.
-10. As result, you will have `oauth1.json` file generated and ready to use by the client.
-11. Put `oauth1.json` in some secure location that is not available from outside as it contains secure information that can be used to access your IBKR account and perform trades on your behalf.
+10. As result, file `oauth1.json` will be generated and ready to use by the client.
+11. Put `oauth1.json` in some secure location that is not available from outside as it contains secure information that can be used to perform trades on behalf of IBKR account owner.
 
 ```
 import { IbkrClient } from 'ibkr-client';
@@ -55,7 +59,7 @@ const client = new IbkrClient(config);
 ```
 
 ### Without `oauth1.json` file
-If for some reason you don't want to generate and use OAuth config as a file, you can pass all required parameters directly to `IbkrClient` during instantiation:
+It's possible to pass all required parameters directly to `IbkrClient` during instantiation:
 ```
 import { IbkrClient, IbkrOauth1Config } from 'ibkr-client';
 
@@ -75,7 +79,7 @@ const client = new IbkrClient(config);
 ## Usage
 
 ### Initialization
-Before making REST API calls or connect to the WebSocket you have to initialize a session: 
+Before making REST API calls or connect to the WebSocket it's needed to initialize a session: 
 
 ```
 await client.init();
@@ -103,6 +107,33 @@ client.session = res.session;
 new Promise((r) => setTimeout(r, 1000));
 ```
 
+### REST API calls
+In order to make calls to IBKR REST API use universal `request` method:
+```
+async request(input: {
+  path: string;
+  method?: string; // GET by default
+  data?: object;
+  params?: Record<string, string | number | boolean | null | undefined>;
+  headers?: Record<string, string>;
+})
+```
+
+For example, request to get [portfolio accounts](https://www.interactivebrokers.com/campus/ibkr-api-page/webapi-ref/#tag/Trading-Portfolio/paths/~1portfolio~1accounts/get) will look like this:
+```
+const res = await client.request({ path: 'portfolio/accounts' });
+```
+
+And [stocks search](https://www.interactivebrokers.com/campus/ibkr-api-page/webapi-ref/#tag/Trading-Contracts/paths/~1trsrv~1stocks/get) will look like this:
+```
+const symbols = ['AAPL', 'AMZN'];
+
+const res = await client.request({
+  path: 'trsrv/stocks',
+  params: { symbols: symbols.join(',') },
+});
+```
+
 ### WebSocket
 A lot of data can be received via IBKR WebSocket, for example [live order updates](https://www.interactivebrokers.com/campus/ibkr-api-page/cpapi-v1/#ws-order-updates-sub):
 ```
@@ -121,9 +152,10 @@ socket.multiplex(
 );
 ```
 
-For debugging purposes you may want to watch the data being sent and received through WebSocket, it can be done with the oprional `debug` argument of `client.socket()`:
+For debugging purposes one may want to watch the data being sent and received through WebSocket, it can be done with the oprional `debug` argument of `client.socket()`:
 ```
 const socket = client.socket(['send', 'receive']);
-
 ```
-All available values for debug string array are: open, close, send, receive, error.
+All available values for debug string array are: _open, close, send, receive, error_.
+
+`socket()` method returns `RxWebSocketSubject` that uses [rxwebsocket](https://www.npmjs.com/package/rxwebsocket) module under the hood, which is a wrapper around standard RxJS WebSocketSubject with advanced capabilities, check it out.

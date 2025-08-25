@@ -1,15 +1,15 @@
 {
   "name": "ibkr-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "IBKR (Interactive Brokers) Web API Client with OAuth support",
-  "main": "./dist/cjs/ibkr-client.js",
-  "module": "./dist/esm/ibkr-client.js",
-  "types": "./dist/esm/ibkr-client.d.ts",
+  "main": "./dist/cjs/ibkr.client.js",
+  "module": "./dist/esm/ibkr.client.js",
+  "types": "./dist/esm/ibkr.client.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/cjs/ibkr-client.js",
-      "import": "./dist/esm/ibkr-client.js",
-      "types": "./dist/esm/ibkr-client.d.ts"
+      "require": "./dist/cjs/ibkr.client.js",
+      "import": "./dist/esm/ibkr.client.js",
+      "types": "./dist/esm/ibkr.client.d.ts"
     }
   },
   "scripts": {
