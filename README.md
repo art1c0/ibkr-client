@@ -54,16 +54,18 @@ In order to use OAuth1.0a method one first needs to obtain configuration files a
 
 ```
 import { IbkrClient } from 'ibkr-client';
+
 const config = JSON.parse(fs.readFileSync('path_to_oauth1.json', 'utf8'));
+
 const client = new IbkrClient(config);
 ```
 
 ### Without `oauth1.json` file
 It's possible to pass all required parameters directly to `IbkrClient` during instantiation:
 ```
-import { IbkrClient, IbkrOauth1Config } from 'ibkr-client';
+import { IbkrClient } from 'ibkr-client';
 
-const config: IbkrOauth1Config = {
+const config = {
   accessTokenSecret: string;
   accessToken: string;
   consumerKey: string;

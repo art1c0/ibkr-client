@@ -1,6 +1,6 @@
 {
   "name": "ibkr-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "IBKR (Interactive Brokers) Web API Client with OAuth support",
   "main": "./dist/cjs/ibkr.client.js",
   "module": "./dist/esm/ibkr.client.js",
